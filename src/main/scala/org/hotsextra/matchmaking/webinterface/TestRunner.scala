@@ -31,7 +31,6 @@ import codec.Encoders._
 import argonaut._
 import Argonaut._
 
-//import org.http4s.MediaType._
 import org.http4s.dsl._
 import org.http4s.twirl._
 
@@ -85,7 +84,7 @@ object TestRunner extends App {
           case x => Task.now(x)
         }).collect { case org.hotsextra.matchmaking.Accepted(q) => q.toList }
 
-        val built = matches.map(matchbuilding.Matchbuilders.interleavingHeroLeague _)
+        val built = matches.map(matchbuilding.Matchbuilders.oneTwoHeroLeague _)
 
         println("establishing")
         //can't figure out how to get correct implicit resultion for decoder. Do it all manually

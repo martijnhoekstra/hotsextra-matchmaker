@@ -11,12 +11,6 @@ import scala.collection.immutable.Queue
 import entries._
 import entries.Evaluators._
 
-sealed trait StepResult[+A]
-case object Continue extends StepResult[Nothing]
-case object EndOfQueue extends StepResult[Nothing]
-case class Rejected[A](item: A) extends StepResult[A]
-case class Accepted[A](items: Queue[A]) extends StepResult[A]
-
 case class Matchmaker[A](traversed: Heap[A], pool: Queue[A], untraversed: Heap[A], order: Order[A]) {
 
   implicit val ord = order

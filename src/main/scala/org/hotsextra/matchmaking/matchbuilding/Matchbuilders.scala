@@ -22,6 +22,14 @@ object Matchbuilders {
    */
   def interleavingHeroLeague(entries: List[HeroLeagueEntry]) = splitlist(entries)
 
+  def oneTwoHeroLeague(entries: List[HeroLeagueEntry]) = entries match {
+    case List(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10) => {
+      (List(p1, p4, p5, p7, p10),
+        List(p2, p3, p6, p8, p9))
+    }
+    case _ => interleavingHeroLeague(entries)
+  }
+
   /**
    * This matchbuilder only takes team comp in to account.
    * It's only three gurantees are:

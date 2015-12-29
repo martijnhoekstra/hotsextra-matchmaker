@@ -1,4 +1,5 @@
 (function() {
+
 function BasicParamsViewmodel(target, startseconds, secondsperpoint) {
   var self = this;
   self.target = ko.observable(target);
@@ -72,6 +73,8 @@ function Player(id, mmr, sigma, secswaited) {
   self.mmr = Math.floor(mmr);
   self.id = id;
   self.sigma = Math.floor(sigma);
+  self.queuedAt = moment();
+  self.waitingFor = ko.observable("");
   self.timewaited = secswaited;
   self.minMMR = self.mmr - (2 * self.sigma);
   self.maxMMR = self.mmr + (2 * self.sigma);
@@ -94,6 +97,15 @@ function Results() {
   self.waiting = ko.observableArray([]);
   self.found = ko.observableArray([]);
   self.numfound = 0;
+  self.numwaiting = ko.computed(function(){
+    return self.waiting().length;
+  }, self).extend({rateLimit: 1000})
+  window.setInterval(function(){
+    var now = moment();
+    self.waiting().forEach(function(e, i, a){
+      e.waitingFor(e.queuedAt.from(now));
+    });
+  }, 1000);
 }
 
 function ViewModel(basic, generation, results) {
@@ -102,6 +114,7 @@ function ViewModel(basic, generation, results) {
   self.generation = generation;
   self.results = results;
   self.socket = null;
+  self.running = ko.observable(false);
   function processgen(gen){
     if(self.socket != null && self.socket.readyState == 1){
       self.results.waiting.push(new Player(gen.id, gen.mmr, gen.sigma, ""));
@@ -121,11 +134,17 @@ function ViewModel(basic, generation, results) {
     generation.generate(processgen);
 
     function opening(opening){
+      self.running(true);
       console.debug("socket is open", opening)
       socket = opening.currentTarget;
     }
+
+    function socketclosed() {
+      alert("connection to server closed. Refresh the page to restart the fun")
+    }
     
     function receivematch(resp) {
+
       console.debug("received resp", resp);
       var match = JSON.parse(resp.data);
 
@@ -135,9 +154,9 @@ function ViewModel(basic, generation, results) {
         });
       });
       var constructed = new Match(conv[0], conv[1]);
-      self.results.found.push(constructed);
+      self.results.found.unshift(constructed);
       if(self.results.numfound >= 5) {
-        self.results.found.shift();
+        self.results.found.pop();
       } else {
         self.results.numfound++;
       }
@@ -150,10 +169,11 @@ function ViewModel(basic, generation, results) {
       //data: "[[{"playerid":28,"rating":{"value":1050.0,"uncertainty":83.0},"joined":"2015-12-28T14:31:11.568Z"},{"playerid":24,"rating":{"value":1195.0,"uncertainty":23.0},"joined":"2015-12-28T14:31:09.568Z"},{"playerid":17,"rating":{"value":1381.0,"uncertainty":52.0},"joined":"2015-12-28T14:31:06.069Z"},{"playerid":25,"rating":{"value":1459.0,"uncertainty":37.0},"joined":"2015-12-28T14:31:10.068Z"},{"playerid":27,"rating":{"value":1531.0,"uncertainty":15.0},"joined":"2015-12-28T14:31:11.068Z"}],[{"playerid":5,"rating":{"value":1086.0,"uncertainty":212.0},"joined":"2015-12-28T14:31:00.068Z"},{"playerid":21,"rating":{"value":1239.0,"uncertainty":39.0},"joined":"2015-12-28T14:31:08.068Z"},{"playerid":7,"rating":{"value":1425.0,"uncertainty":30.0},"joined":"2015-12-28T14:31:01.078Z"},{"playerid":2,"rating":{"value":1493.0,"uncertainty":5.0},"joined":"2015-12-28T14:30:58.569Z"},{"playerid":22,"rating":{"value":1600.0,"uncertainty":75.0},"joined":"2015-12-28T14:31:08.568Z"}]]"
 
     }
-    self.socket = basic.socket(receivematch, opening);
+    self.socket = basic.socket(receivematch, opening, socketclosed, socketclosed);
   };
 
   self.stopgeneration = function(){
+    self.running(false);
     generation.cancel = true;
   }
 }

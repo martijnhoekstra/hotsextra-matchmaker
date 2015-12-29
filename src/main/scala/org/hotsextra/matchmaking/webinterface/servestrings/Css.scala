@@ -8,6 +8,17 @@ import org.http4s.EntityEncoder._
 
 object Css {
   val site = """
+  |body {
+  |  color: #666;
+  |  font-family: "Open Sans", sans-serif;
+  |  font-size: 14px;
+  |  line-height: 1.75em;
+  |}
+  |
+  |table {
+  |  text-align: right;
+  |}
+  |
   |#found {
   |  float:left;
   |  width:40%;
