@@ -7,8 +7,17 @@ function BasicParamsViewmodel(target, startseconds, secondsperpoint) {
   self.secondsperpoint = ko.observable(secondsperpoint);
   var socket = null;
   self.socket = function(onmessage, onopen, onclose, onerror){
+    var host = function(){
+      var loc = window.location, prot;
+      if (loc.protocol === "https:") {
+        prot = "wss:";
+      } else {
+        prot = "ws:";
+      }
+      return prot + "//" + loc.host;
+    }();
     if (socket == null) {
-      socket = new WebSocket("ws://localhost:666/matchmaking/queues/hl/solo?teamsize=5&target=" + self.target() + "&threshold=" + self.startseconds() + "&secondsperpoint=" + self.secondsperpoint());
+      socket = new WebSocket(host + "/matchmaking/queues/hl/solo?teamsize=5&target=" + self.target() + "&threshold=" + self.startseconds() + "&secondsperpoint=" + self.secondsperpoint());
     }
     socket.onopen = function() {
       var args = arguments;

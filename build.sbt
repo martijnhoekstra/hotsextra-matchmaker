@@ -48,4 +48,4 @@ scalacOptions ++= Seq(
 
 scalariformSettings
 
-lazy val root = (project in file(".")).enablePlugins(SbtTwirl)
+lazy val root = (project in file(".")).enablePlugins(SbtTwirl).enablePlugins(JavaAppPackaging)

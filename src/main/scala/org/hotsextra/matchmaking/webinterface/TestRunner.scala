@@ -39,7 +39,7 @@ import rating.Rating
 
 import scalaz.stream.async.boundedQueue
 
-object TestRunner extends App {
+object TestRunner {
 
   implicit def clock = Clock.systemUTC
 
@@ -51,6 +51,7 @@ object TestRunner extends App {
   val route = HttpService {
     case GET -> Root => Ok(html.index())
     case GET -> Root / "script" / "site" => Ok(js.site())
+    case GET -> Root / "script" / "random" => Ok(js.random())
     case GET -> Root / "css" / "site.css" => {
       Ok(servestrings.Css.site)(servestrings.Css.cssEncoder)
     }
@@ -97,10 +98,21 @@ object TestRunner extends App {
     }
   }
 
-  BlazeBuilder.bindHttp(666)
-    .withWebSockets(true)
-    .mountService(route, "/matchmaking")
-    .run
-    .awaitShutdown()
+  def main(args: Array[String]): Unit = {
+    println("Hello, world!")
+    println(s"I would like to have an argument: ${args.toList}")
+    val env = System.getenv()
+    val ports = if (env.containsKey("PORT")) env.get("PORT") else "666"
+    val host = "0.0.0.0"
+    println(s"port: $ports");
+
+    val port = ports.toInt;
+
+    BlazeBuilder.bindHttp(port, host)
+      .withWebSockets(true)
+      .mountService(route, "/matchmaking")
+      .run
+      .awaitShutdown()
+  }
 
 }
