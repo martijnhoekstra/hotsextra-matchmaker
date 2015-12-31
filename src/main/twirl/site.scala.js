@@ -63,10 +63,12 @@ function GenerationViewModel(avgmmr, stdmmr, avggamesplayed, seed, speed) {
   self.generator = new Random(seed);
   self.i = 0;
   var generateOne = function(){
-    var mmr = self.generator.normal(parseFloat(self.avgmmr()), parseFloat(self.stdmmr()));
+    var basemmr = self.generator.normal(parseFloat(self.avgmmr()), parseFloat(self.stdmmr()));
     var rate = 1.0 / self.avggamesplayed()
     var totalplayed = randomGeometric(self.generator.random.bind(self.generator))(rate);
     var played = Math.floor(self.generator.random() * totalplayed)
+    var newplayercorrection = 1 / (played + 1)
+    var mmr = (newplayercorrection * 1700) + ((1 - newplayercorrection) * basemmr)
     var sigma = 500 / Math.log( (played * played / 2) + Math.E );
     var id = self.i;
     self.i++;
