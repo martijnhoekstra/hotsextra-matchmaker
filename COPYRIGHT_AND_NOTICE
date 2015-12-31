@@ -1,0 +1,14 @@
+Copyright Martijn Hoekstra 2015
+
+It is free software under the Affero Gnu General Public License 3. The full license text can be found at the root of this project in the file AGPL3.LICENSE
+
+It incorporates some other works as well. It depends on:
+
+* Scalaz, under "a BSD-style license". No further details, but I believe they want it to be very permissive. Created by Tony Morris, with a variety of other contributors, who should hold the respective copyrights.
+* Scalaz-stream, (now called fs2), Copyright (c) 2013 Paul Chiusano, and respective contributors, under the MIT license (see MIT.LICENSE in the root of this project) 
+* http4s, Copyright 2013-2014 http4s [http://www.http4s.org] under the Apache2 license: http://www.apache.org/licenses/LICENSE-2.0
+* Simjs, Copyright Maneesh Varshney, from http://simjs.com/, under an LGPL license. It's not clear exactly which one.
+* Argonaut, Copyright (c) 2012, Ephox Pty Ltd, Mark Hibberd, Sean Parsons and other contributors. http://argonaut.io/ Under a 3-clause BSD license (see BSD3CLAUSE.LICENSE in the root of this project)
+* Grizzled, Copyright © 2009-2010 Brian M. Clapper. http://software.clapper.org/grizzled-scala/ Also under a 3-caluse BSD license (see BSD3CLAUSE.LICENSE in the root of this project)
+
+There may be further transitive dependencies I'm not aware of
