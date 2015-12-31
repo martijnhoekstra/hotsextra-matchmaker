@@ -19,6 +19,10 @@ object Css {
   |  text-align: right;
   |}
   |
+  |th {
+  |  text-align: center;  
+  |}
+  |
   |#found {
   |  float:left;
   |  width:40%;

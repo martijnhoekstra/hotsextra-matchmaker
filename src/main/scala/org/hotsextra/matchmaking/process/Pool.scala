@@ -16,7 +16,6 @@ import entries.HeroLeagueEntry
 import java.time.Duration
 import entries.Evaluators.Evaluate
 import scalaz.Order
-import scalaz.Scalaz._
 import scalaz.State
 import scalaz.StateT
 
@@ -25,10 +24,8 @@ object Pool {
   //rest API DELETE
   //var matchmaker = Matchmaker.empty[Evaluators.HeroLeagueEntry]
 
-  def heroLeagueSoloQueue(joins: Process[Task, HeroLeagueEntry], baseEvaluator: Evaluate[HeroLeagueEntry]): Process[Task, StepResult[HeroLeagueEntry]] = {
-    //def baseEvaluator: Evaluate[HeroLeagueEntry] = HeroLeagueSoloQueueEvaluator(5, 200, Duration.ofMinutes(6), 0.3)(Clock.systemUTC)
-
-    implicit val entryorder = Order.orderBy((entry: HeroLeagueEntry) => entry.rating.score).reverseOrder
+  def heroLeagueSoloQueue(joins: Process[Task, HeroLeagueEntry], baseEvaluator: Evaluate[HeroLeagueEntry], order: Order[HeroLeagueEntry]): Process[Task, StepResult[HeroLeagueEntry]] = {
+    implicit val ord = order
 
     type Produce[A] = State[Matchmaker[HeroLeagueEntry], A]
 

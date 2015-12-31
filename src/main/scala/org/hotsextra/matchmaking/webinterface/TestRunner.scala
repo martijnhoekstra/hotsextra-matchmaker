@@ -15,6 +15,8 @@ import scala.concurrent.duration._
 
 import scalaz.concurrent.Task
 import scalaz.concurrent.Strategy
+import scalaz.Order
+import scalaz.Scalaz._
 import scalaz.stream.async.unboundedQueue
 import scalaz.stream.Process
 import scalaz.stream.{ DefaultScheduler, Exchange }
@@ -65,6 +67,13 @@ object TestRunner {
       import scala.util.Try
       println("starting websocket server")
 
+      val (evaluator, order: Order[HeroLeagueEntry]) = params.get("adjustmmr").flatMap(_.headOption).flatMap(adj => Try { adj.toDouble }.toOption) match {
+        case Some(n) if n != 0.0 => (heroleagueMinusNSigma(n) _, Order.orderBy((entry: HeroLeagueEntry) => (entry.rating.score - (n * entry.rating.sigma))).reverseOrder)
+        case _ => (heroleagueSoloQueueEvaluator _, Order.orderBy((entry: HeroLeagueEntry) => entry.rating.score).reverseOrder)
+      }
+
+      implicit val ord = order
+
       val mevaluator = for {
         steamsize <- params.get("teamsize").flatMap(_.headOption)
         starget <- params.get("target").flatMap(_.headOption)
@@ -74,11 +83,11 @@ object TestRunner {
         target <- Try { starget.toInt }.toOption
         threshold <- Try { streshold.toLong }.toOption
         ppm <- Try { sppm.toDouble }.toOption
-      } yield HeroLeagueSoloQueueEvaluator(teamsize, target, JDuration.ofSeconds(threshold), ppm)(Clock.systemUTC)
+      } yield heroleagueSoloQueueEvaluator(teamsize, target, JDuration.ofSeconds(threshold), ppm)(Clock.systemUTC)
 
       mevaluator.map { evaluator =>
         val joinhlsolo = boundedQueue[HeroLeagueEntry](8)
-        val heroleaguesolo = Pool.heroLeagueSoloQueue(joinhlsolo.dequeue, evaluator)
+        val heroleaguesolo = Pool.heroLeagueSoloQueue(joinhlsolo.dequeue, evaluator, order)
 
         val matches: Process[Task, List[HeroLeagueEntry]] = heroleaguesolo.evalMap(x => x match {
           case EndOfQueue => Task.delay(EndOfQueue).after(1.seconds)
