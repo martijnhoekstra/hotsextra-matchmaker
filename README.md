@@ -1,6 +1,6 @@
 ##A heap based matchmaker exploration
 
-This is an exploration for how matchmaking could work in Heroes of the Storm.
+This is an exploration for how matchmaking could work in Heroes of the Storm. A live view of the matchmaker can be played with at https://lit-bayou-1819.herokuapp.com/matchmaking
 
 ##What is this?
 
